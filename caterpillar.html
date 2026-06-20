@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Caterpillar Game</title>
+    <style>
+        body {
+            background: yellow;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            background: white;
+            border: 2px solid black;
+        }
+
+        h2 {
+            color: black;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Press SPACE to Start</h2>
+<canvas id="gameCanvas" width="600" height="600"></canvas>
+
+<script>
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+let caterpillar = {
+    x: 300,
+    y: 300,
+    width: 60,
+    height: 20,
+    speed: 2,
+    dx: 2,
+    dy: 0
+};
+
+let leaf = {
+    x: Math.random() * 550,
+    y: Math.random() * 550,
+    size: 20
+};
+
+let score = 0;
+let gameStarted = false;
+
+function drawCaterpillar() {
+    ctx.fillStyle = "red";
+    ctx.fillRect(
+        caterpillar.x,
+        caterpillar.y,
+        caterpillar.width,
+        caterpillar.height
+    );
+}
+
+function drawLeaf() {
+    ctx.fillStyle = "green";
+    ctx.beginPath();
+    ctx.arc(
+        leaf.x,
+        leaf.y,
+        leaf.size / 2,
+        0,
+        Math.PI * 2
+    );
+    ctx.fill();
+}
+
+function moveCaterpillar() {
+    caterpillar.x += caterpillar.dx;
+    caterpillar.y += caterpillar.dy;
+}
+
+function placeLeaf() {
+    leaf.x = Math.random() * 550;
+    leaf.y = Math.random() * 550;
+}
+
+function checkCollision() {
+    let distance = Math.hypot(
+        caterpillar.x - leaf.x,
+        caterpillar.y - leaf.y
+    );
+
+    if (distance < 30) {
+        score += 10;
+        caterpillar.width += 10;
+        caterpillar.speed += 0.2;
+        placeLeaf();
+    }
+}
+
+function checkGameOver() {
+    if (
+        caterpillar.x < 0 ||
+        caterpillar.y < 0 ||
+        caterpillar.x > canvas.width ||
+        caterpillar.y > canvas.height
+    ) {
+        alert("GAME OVER! Score: " + score);
+        document.location.reload();
+    }
+}
+
+function drawScore() {
+    ctx.fillStyle = "black";
+    ctx.font = "20px Arial";
+    ctx.fillText("Score: " + score, 10, 25);
+}
+
+function gameLoop() {
+    if (!gameStarted) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    moveCaterpillar();
+    checkCollision();
+    checkGameOver();
+
+    drawLeaf();
+    drawCaterpillar();
+    drawScore();
+
+    requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener("keydown", function(event) {
+    if (event.code === "Space") {
+        gameStarted = true;
+        document.querySelector("h2").innerText =
+            "Use Arrow Keys to Move";
+    }
+
+    if (event.key === "ArrowUp") {
+        caterpillar.dx = 0;
+        caterpillar.dy = -caterpillar.speed;
+    }
+
+    if (event.key === "ArrowDown") {
+        caterpillar.dx = 0;
+        caterpillar.dy = caterpillar.speed;
+    }
+
+    if (event.key === "ArrowLeft") {
+        caterpillar.dx = -caterpillar.speed;
+        caterpillar.dy = 0;
+    }
+
+    if (event.key === "ArrowRight") {
+        caterpillar.dx = caterpillar.speed;
+        caterpillar.dy = 0;
+    }
+});
+
+gameLoop();
+</script>
+
+</body>
+</html>
